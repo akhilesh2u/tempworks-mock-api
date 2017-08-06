@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
+
+	<context:property-placeholder
+		location="classpath:/config/verocity-mock-${mule.env}.properties" />
+		
+	<http:listener-config name="tempworks-bgcheck-httpListenerConfig" host="0.0.0.0" port="8083" doc:name="HTTP Listener Configuration" >
+
+	</http:listener-config>
+		
+		
+    <flow name="tempworks-mock-apiFlow">
+        <http:listener config-ref="tempworks-bgcheck-httpListenerConfig" path="tempworks/statusupdate" doc:name="HTTP">
+        	
+        </http:listener>
+        <logger level="INFO" doc:name="Logger"/>
+        <http:basic-security-filter realm="mule-realm"/>
+        <object-to-string-transformer doc:name="Object to String"/>
+        <logger message="Request Payload received to Tempworkd Mock API:  #[payload]  Received Request Headers: #[message.inboundProperties.toString()]" level="INFO" doc:name="Logger"/>
+        <set-payload value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;BackgroundReports&gt;
+	&lt;ProviderReferenceId&gt;
+		&lt;IdValue&gt;657a6e2d-2781-48a4-95f2-f11f98547963&lt;/IdValue&gt;
+	&lt;/ProviderReferenceId&gt;
+	&lt;ScreeningStatus&gt;
+		&lt;OrderStatus&gt;Completed&lt;/OrderStatus&gt;
+	&lt;/ScreeningStatus&gt;
+&lt;/BackgroundReports&gt;"  doc:name="Set Payload"/>
+    </flow>
+</mule>
